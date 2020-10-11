@@ -1,0 +1,52 @@
+<div class="card my-5">
+  <div class="card-body">
+    <ul class="text-center list-inline py-3">
+      <li class="list-inline-item">
+        <mat-form-field>
+          <mat-label>Choose a plate</mat-label>
+          <mat-select name="placas" [(value)]="selected">
+            <mat-option *ngFor="let placa of placas" [value]="placa">
+              {{ placa }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </li>
+      <li class="list-inline-item">
+        <mat-form-field class="example-full-width" appearance="fill">
+          <mat-label>Choose a date</mat-label>
+          <input matInput [matDatepicker]="picker" (dateChange)="dateChange($event)">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </li>
+      <li class="list-inline-item">
+        <button (click)="search()" class="btn btn-dark btn-sm">Search</button>
+      </li>
+    </ul>
+
+    <!-- <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Placa</th>
+          <th scope="col">Data</th>
+          <th scope="col">Velocidade</th>
+          <th scope="col">Latitude</th>
+          <th scope="col">Longitude</th>
+          <th scope="col">Ignição</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let posicao of posicoes">
+          <td>{{ posicao.id }}</td>
+          <td>{{ posicao.placa }}</td>
+          <td>{{ posicao.data }}</td>
+          <td>{{ posicao.velocidade }}</td>
+          <td>{{ posicao.latitude }}</td>
+          <td>{{ posicao.longitude }}</td>
+          <td>{{ posicao.ignicao }}</td>
+        </tr>
+      </tbody>
+    </table> -->
+  </div>
+</div>
