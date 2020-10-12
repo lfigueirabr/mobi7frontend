@@ -24,7 +24,7 @@
       </li>
     </ul>
 
-    <!-- <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped">
       <thead class="thead-dark">
         <tr>
           <th scope="col">#</th>
@@ -38,7 +38,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let posicao of posicoes">
-          <td>{{ posicao.id }}</td>
+          <td><a href="https://www.google.com/maps/place/{{ posicao.latitude }} {{ posicao.longitude }}" target="_blank">{{ posicao.id }}</a></td>
           <td>{{ posicao.placa }}</td>
           <td>{{ posicao.data }}</td>
           <td>{{ posicao.velocidade }}</td>
@@ -47,6 +47,6 @@
           <td>{{ posicao.ignicao }}</td>
         </tr>
       </tbody>
-    </table> -->
+    </table>
   </div>
 </div>

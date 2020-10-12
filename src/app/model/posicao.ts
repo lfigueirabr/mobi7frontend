@@ -1,5 +1,5 @@
 export class Posicao {
-  id: string;
+  id: number;
   placa: string;
   data: Date;
   velocidade: number;

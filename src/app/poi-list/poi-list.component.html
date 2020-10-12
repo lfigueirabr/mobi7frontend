@@ -12,7 +12,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let poi of pois">
-          <td>{{ poi.id }}</td>
+          <td><a href="https://www.google.com/maps/place/{{ poi.latitude }} {{ poi.longitude }}" target="_blank">{{ poi.id }}</a></td>
           <td>{{ poi.nome }}</td>
           <td>{{ poi.raio }}</td>
           <td>{{ poi.latitude }}</td>

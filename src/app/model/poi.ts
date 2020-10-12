@@ -1,5 +1,5 @@
 export class POI {
-  id: string;
+  id: number;
   nome: string;
   raio: number;
   latitude: number;
