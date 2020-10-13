@@ -104,28 +104,27 @@ export class TimeListComponent implements OnInit {
 
     let placaPOIs = this.putCarWithPos(matches); // Map<string, Map<POI, Posicao>[]>
 
-    let POIsum = new Map<POI, number>();
-    let lastDate: Date;
+    let POIsum: Map<POI, number>;
+    let lastPos: Posicao;
+    let lastPOI: POI;
     this.tempos = [];
     for (let placa of placaPOIs.keys()) {
-      lastDate = undefined;
+      POIsum = new Map<POI, number>();
       for (let poiPos of placaPOIs.get(placa)) { // iterate Array of Map<POI, Posicao> - process all pos from placa (car)
         for (let [poi, pos] of poiPos) { // just one entry
           if (!POIsum.has(poi)) {
-            lastDate = undefined;
             POIsum.set(poi, 0);
           } else {
-            if (lastDate === undefined) {
-              lastDate = pos.data;
-            } else {
-              let diff = Math.ceil(Math.abs((new Date(pos.data)).getTime() - (new Date(lastDate)).getTime()) / (1000 * 60));
+            if (poi.nome === lastPOI.nome) {
+              // time difference in minutes
+              let diff = Math.ceil(Math.abs((new Date(pos.data)).getTime() - (new Date(lastPos.data)).getTime()) / (1000 * 60));
               POIsum.set(poi, POIsum.get(poi) + diff);
-              lastDate = pos.data;
             }
           }
+          lastPos = pos;
+          lastPOI = poi;
         }
       }
-
       for (let [poi, sum] of POIsum) {
         this.tempos.push(new Tempo(placa, poi.nome, sum));
         //console.log("placa " + placa + ": " + poi.nome + " " + sum + " min. " + this.tempos.length);
