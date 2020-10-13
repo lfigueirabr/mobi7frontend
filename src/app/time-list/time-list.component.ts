@@ -3,9 +3,11 @@ import { PosicaoService } from '../service/posicao.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerInputEvent, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { Posicao } from '../model/posicao';
 import { POI } from '../model/poi';
 import { POIService } from '../service/poi.service';
+import { Tempo } from '../model/tempo';
 
 @Component({
   selector: 'app-time-list',
@@ -19,6 +21,8 @@ export class TimeListComponent implements OnInit {
   posicoes: Posicao[];
   selected: string;
   pois: POI[];
+  tempos: Tempo[];
+  showTables: boolean = false;
 
   constructor(private posicaoService: PosicaoService, private poiService: POIService) { }
 
@@ -34,19 +38,29 @@ export class TimeListComponent implements OnInit {
   search() {
     this.posicaoService.findPosicoes(this.selected, this.date).subscribe(data => {
       this.posicoes = data;
-      this.calcTime();
+      if (this.posicoes !== null) {
+        this.calcTime();
+      }
     });
 
   }
 
   dateChange(event: MatDatepickerInputEvent<string>) {
-    this.date = new Date(event.value);
+    if (event.value !== null) {
+      this.date = new Date(event.value);
+    } else {
+      this.date = undefined;
+    }
   }
 
-  calcTime() {
+  resetPlaca() {
+   this.selected = undefined;
+  }
+
+  calcPositionWithinPoiRange() {
     let dist: number;
-    let matches = new Map<POI, Posicao[]>(); // positions within poi radius range <poi, position[]>
     let arr: Posicao[];
+    let matches = new Map<POI, Posicao[]>(); // positions within poi radius range
     for (let poi of this.pois) {
       for (let pos of this.posicoes) {
         dist = this.distanceInKmBetweenEarthCoordinates(poi.latitude, poi.longitude, pos.latitude, pos.longitude);
@@ -62,17 +76,63 @@ export class TimeListComponent implements OnInit {
         }
       }
     }
-    //console.log(matches);
-    let sum: number; // hours
+    return matches;
+  }
+
+  putCarWithPos(matches: Map<POI, Posicao[]>) {
+    let placaPOIs = new Map<string, Map<POI, Posicao>[]>(); // correspondence of a car and its positions (with POI information)
+    let tmpMap: Map<POI, Posicao>;
+    let arrTmp: Map<POI, Posicao>[];
     for (let key of matches.keys()) { // for each POI
-      sum = 0;
-      for (let pos of matches.get(key)) { // sum pos time
-        if (pos.velocidade > 0 && pos.ignicao === true) { // d = s * t (distance m = speed km/h * time s) => time s = distance m / speed km/h
-          sum += (key.raio/1000) / pos.velocidade;
+      for (let pos of matches.get(key)) { // for each pos of a POI
+        tmpMap = new Map<POI, Posicao>();
+        tmpMap.set(key, pos);
+        if (!placaPOIs.has(pos.placa)) {
+          placaPOIs.set(pos.placa, [tmpMap]); // init array
+        } else {
+          arrTmp = placaPOIs.get(pos.placa);
+          arrTmp.push(tmpMap);
+          placaPOIs.set(pos.placa, arrTmp);
         }
       }
-      //console.log(key.nome + ": " + sum);
     }
+    return placaPOIs;
+  }
+
+  calcTime() {
+    let matches = this.calcPositionWithinPoiRange(); // Map<POI, Posicao[]>
+
+    let placaPOIs = this.putCarWithPos(matches); // Map<string, Map<POI, Posicao>[]>
+
+    let POIsum = new Map<POI, number>();
+    let lastDate: Date;
+    this.tempos = [];
+    for (let placa of placaPOIs.keys()) {
+      lastDate = undefined;
+      for (let poiPos of placaPOIs.get(placa)) { // iterate Array of Map<POI, Posicao> - process all pos from placa (car)
+        for (let [poi, pos] of poiPos) { // just one entry
+          if (!POIsum.has(poi)) {
+            lastDate = undefined;
+            POIsum.set(poi, 0);
+          } else {
+            if (lastDate === undefined) {
+              lastDate = pos.data;
+            } else {
+              let diff = Math.ceil(Math.abs((new Date(pos.data)).getTime() - (new Date(lastDate)).getTime()) / (1000 * 60));
+              POIsum.set(poi, POIsum.get(poi) + diff);
+              lastDate = pos.data;
+            }
+          }
+        }
+      }
+
+      for (let [poi, sum] of POIsum) {
+        this.tempos.push(new Tempo(placa, poi.nome, sum));
+        //console.log("placa " + placa + ": " + poi.nome + " " + sum + " min. " + this.tempos.length);
+      }
+    }
+
+    this.showTables = true;
   }
 
   degreesToRadians(degrees: number) {

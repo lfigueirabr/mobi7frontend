@@ -3,7 +3,7 @@
     <ul class="text-center list-inline py-3">
       <li class="list-inline-item">
         <mat-form-field>
-          <mat-label>Choose a plate</mat-label>
+          <mat-label>Escolha uma placa</mat-label>
           <mat-select name="placas" [(value)]="selected">
             <mat-option *ngFor="let placa of placas" [value]="placa">
               {{ placa }}
@@ -12,19 +12,39 @@
         </mat-form-field>
       </li>
       <li class="list-inline-item">
+        <button (click)="resetPlaca()" class="btn btn-dark btn-sm pb-0"><mat-icon>clear</mat-icon></button>
+      </li>
+      <li class="list-inline-item">
         <mat-form-field class="example-full-width" appearance="fill">
-          <mat-label>Choose a date</mat-label>
+          <mat-label>Escolha uma data</mat-label>
           <input matInput [matDatepicker]="picker" (dateChange)="dateChange($event)">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
       </li>
       <li class="list-inline-item">
-        <button (click)="search()" class="btn btn-dark btn-sm">Search</button>
+        <button (click)="search()" class="btn btn-dark btn-md">Buscar</button>
       </li>
     </ul>
 
-    <table class="table table-bordered table-striped">
+    <table *ngIf="showTables" class="table table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Placa</th>
+          <th scope="col">POI</th>
+          <th scope="col">Tempo (min)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tempo of tempos">
+          <td>{{ tempo.placa }}</td>
+          <td>{{ tempo.poi }}</td>
+          <td>{{ tempo.tempo }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table *ngIf="showTables" class="table table-bordered table-striped">
       <thead class="thead-dark">
         <tr>
           <th scope="col">#</th>
